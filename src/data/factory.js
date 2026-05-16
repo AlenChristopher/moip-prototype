@@ -1,27 +1,27 @@
 // Realistic fake data — designed to look exactly like a live factory
 
 export const plantMeta = {
-  name: 'Gothenburg Plant 1',
+  name: 'Gothenburg Plant',
   line: 'Assembly Line A',
   shift: 'Morning Shift  06:00 – 14:00',
-  date: 'Mon 12 May 2025',
+  date: 'Sat 17 May 2025',
 }
 
 export const kpiSummary = {
-  oee:        71.3,
-  throughput: 847,
-  targetThroughput: 980,
-  downtime:   4.8,
-  activeAlerts: 3,
-  mtbf:       38.4,
-  mttr:       22.0,
-  fpy:        96.2,
+oee:        68.7,
+throughput: 831,
+targetThroughput: 960,
+downtime:   5.3,
+activeAlerts: 3,
+mtbf:       41.7,
+mttr:       19.0,
+fpy:        95.8,
 }
 
 export const oeeBreakdown = {
-  availability: 88.4,
-  performance:  83.9,
-  quality:      96.2,
+availability: 86.1,
+performance:  82.7,
+quality:      95.8,
 }
 
 // Last 9 hours throughput
