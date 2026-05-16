@@ -1,144 +1,132 @@
-import React from 'react'
-import { SectionTitle } from '../shared/UI'
+import React, { useState } from 'react'
+import { RiskBadge, SectionTitle, riskColor } from '../shared/UI'
+import { recommendations } from '../../data/factory'
 
-function heatColor(score) {
-  if (score >= 85) return { bg: 'rgba(255,69,96,0.18)',  border: '#FF4560', text: '#FF4560' }
-  if (score >= 65) return { bg: 'rgba(255,176,32,0.14)', border: '#FFB020', text: '#FFB020' }
-  if (score >= 40) return { bg: 'rgba(0,212,255,0.10)',  border: '#00D4FF', text: '#00D4FF' }
-  return                   { bg: 'rgba(0,229,160,0.08)', border: '#00E5A0', text: '#00E5A0' }
-}
-
-function StationCell({ station }) {
-  const c = heatColor(station.score)
-  const isHot = station.score >= 85
+function RecCard({ rec, expanded, onToggle }) {
+  const color = riskColor(rec.priority)
   return (
     <div style={{
-      background: c.bg,
-      border: `1px solid ${c.border}${isHot ? '' : '66'}`,
+      background: '#0D1117',
+      border: `1px solid ${expanded ? color + '55' : '#21262D'}`,
       borderRadius: 8,
-      padding: '16px 14px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8,
-      position: 'relative',
-      boxShadow: isHot ? `0 0 20px ${c.border}22` : 'none',
-      transition: 'all 0.5s ease',
-      animation: isHot ? 'pulse-glow 2s ease-in-out infinite' : 'none',
+      overflow: 'hidden',
+      transition: 'border-color 0.2s',
     }}>
-      {station.bottleneck && (
+      {/* Header */}
+      <div
+        onClick={onToggle}
+        style={{
+          padding: '16px 20px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 14,
+          borderLeft: `3px solid ${color}`,
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <RiskBadge risk={rec.priority} />
+            <span style={{ fontSize: 11, color: '#00D4FF', fontFamily: 'JetBrains Mono' }}>{rec.machine}</span>
+            <span style={{ fontSize: 11, color: '#484F58', marginLeft: 'auto' }}>{rec.age}</span>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#E6EDF3', marginBottom: 4 }}>{rec.title}</div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11, color: '#8B949E' }}>
+              Action: <span style={{ color: '#00D4FF' }}>{rec.action}</span>
+            </span>
+            <span style={{ fontSize: 11, color: '#8B949E' }}>
+              ETA: <span style={{ color: '#FFB020' }}>{rec.eta}</span>
+            </span>
+            <span style={{ fontSize: 11, color: '#8B949E' }}>
+              Impact: <span style={{ color: '#00E5A0' }}>{rec.impact}</span>
+            </span>
+          </div>
+        </div>
         <div style={{
-          position: 'absolute', top: -8, right: 10,
-          background: '#FF4560', color: '#fff',
-          fontSize: 9, fontWeight: 700,
-          padding: '2px 8px', borderRadius: 10,
-          letterSpacing: '0.08em',
+          width: 24, height: 24, flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#484F58', fontSize: 16,
+          transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.2s',
         }}>
-          ACTIVE BOTTLENECK
+          ▾
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div style={{ padding: '0 20px 18px 23px', borderTop: '1px solid #161B22' }}>
+          <div style={{ paddingTop: 14, fontSize: 13, color: '#8B949E', lineHeight: 1.7 }}>
+            {rec.detail}
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+            <button style={{
+              background: color + '22', color, border: `1px solid ${color}55`,
+              borderRadius: 6, padding: '8px 18px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+            }}>
+              ✓ Acknowledge & assign
+            </button>
+            <button style={{
+              background: 'transparent', color: '#8B949E', border: '1px solid #30363D',
+              borderRadius: 6, padding: '8px 18px', fontSize: 12, cursor: 'pointer',
+            }}>
+              Dismiss
+            </button>
+          </div>
         </div>
       )}
-      <div style={{ fontSize: 13, fontWeight: 500, color: '#E6EDF3', fontFamily: 'JetBrains Mono' }}>
-        {station.name}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-          <div style={{ fontSize: 28, fontWeight: 500, color: c.text, fontFamily: 'JetBrains Mono', lineHeight: 1 }}>
-            {station.score}
-          </div>
-          <div style={{ fontSize: 10, color: '#8B949E', marginTop: 2 }}>bottleneck score</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 18, fontWeight: 500, color: c.text, fontFamily: 'JetBrains Mono' }}>
-            {station.queue}
-          </div>
-          <div style={{ fontSize: 10, color: '#8B949E' }}>queue depth</div>
-        </div>
-      </div>
-      <div style={{
-        padding: '4px 8px',
-        background: 'rgba(0,0,0,0.3)',
-        borderRadius: 4,
-        fontSize: 11,
-        color: station.cycleVsTakt.startsWith('+') ? '#FFB020' : '#00E5A0',
-        fontFamily: 'JetBrains Mono',
-      }}>
-        {station.cycleVsTakt} vs takt
-      </div>
     </div>
   )
 }
 
-export default function BottleneckView({ stations }) {
-  const active = stations.find(s => s.bottleneck)
+export default function Recommendations() {
+  const [expanded, setExpanded] = useState('rec_01')
+
+  const critical = recommendations.filter(r => r.priority === 'CRITICAL').length
+  const high      = recommendations.filter(r => r.priority === 'HIGH').length
 
   return (
     <div style={{ padding: '24px 28px' }}>
-      <div style={{ marginBottom: 20 }}>
-        <SectionTitle accent>Dynamic bottleneck intelligence</SectionTitle>
-        <div style={{ fontSize: 12, color: '#8B949E' }}>
-          Station scores updated every 15 min · weighted composite: queue 40% · cycle time 30% · downtime 20% · variance 10%
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+        <div>
+          <SectionTitle accent>Recommendation queue</SectionTitle>
+          <div style={{ fontSize: 12, color: '#8B949E' }}>
+            Ranked by urgency × impact ·{' '}
+            <span style={{ color: '#FF4560' }}>{critical} CRITICAL</span> ·{' '}
+            <span style={{ color: '#FFB020' }}>{high} HIGH</span>
+          </div>
+        </div>
+        <div style={{
+          fontSize: 11, color: '#8B949E',
+          background: '#161B22', borderRadius: 6, padding: '6px 12px',
+        }}>
+          Adoption rate this shift: <span style={{ color: '#00E5A0', fontFamily: 'JetBrains Mono' }}>62%</span>
         </div>
       </div>
 
-      {/* Active bottleneck callout */}
-      {active && (
-        <div style={{
-          background: 'rgba(255,69,96,0.08)',
-          border: '1px solid rgba(255,69,96,0.4)',
-          borderRadius: 8,
-          padding: '16px 20px',
-          marginBottom: 20,
-          display: 'flex',
-          gap: 20,
-          alignItems: 'center',
-        }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 8,
-            background: 'rgba(255,69,96,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, flexShrink: 0,
-          }}>
-            ⚠
-          </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: '#FF4560', marginBottom: 4 }}>
-              Active bottleneck detected — {active.name}
-            </div>
-            <div style={{ fontSize: 12, color: '#8B949E', lineHeight: 1.6 }}>
-              Queue depth {active.queue} units and rising · cycle time {active.cycleVsTakt} above takt ·
-              estimated throughput loss: <span style={{ color: '#FFB020' }}>+8 units/hr</span> if resolved.
-              <br />Recommended action: <span style={{ color: '#00D4FF' }}>reallocate one operator from Transfer-5 (61% utilisation)</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Heatmap grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
-        {stations.map(station => (
-          <StationCell key={station.id} station={station} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {recommendations.map(rec => (
+          <RecCard
+            key={rec.id}
+            rec={rec}
+            expanded={expanded === rec.id}
+            onToggle={() => setExpanded(expanded === rec.id ? null : rec.id)}
+          />
         ))}
       </div>
 
       {/* Legend */}
       <div style={{
-        display: 'flex', gap: 20, padding: '12px 16px',
-        background: '#0D1117', borderRadius: 8, border: '1px solid #21262D',
-        alignItems: 'center',
+        marginTop: 20, padding: '14px 18px',
+        background: '#0D1117', border: '1px solid #21262D', borderRadius: 8,
+        fontSize: 12, color: '#8B949E', lineHeight: 1.7,
       }}>
-        <span style={{ fontSize: 11, color: '#484F58' }}>SCORE SCALE</span>
-        {[
-          { range: '0–39',   label: 'LOW',      color: '#00E5A0' },
-          { range: '40–64',  label: 'MODERATE', color: '#00D4FF' },
-          { range: '65–84',  label: 'HIGH',     color: '#FFB020' },
-          { range: '85–100', label: 'CRITICAL', color: '#FF4560' },
-        ].map(item => (
-          <div key={item.range} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
-            <span style={{ fontSize: 11, color: '#8B949E' }}>
-              {item.range} <span style={{ color: item.color }}>{item.label}</span>
-            </span>
-          </div>
-        ))}
+        <span style={{ color: '#E6EDF3', fontWeight: 500 }}>How recommendations are generated:</span>{' '}
+        Each recommendation is triggered when a KPI crosses a threshold — health score drops below 50,
+        bottleneck sustained for more than 15 minutes, or a pattern is detected across 3+ shifts.
+        Priority is weighted by urgency × estimated OEE impact. Every recommendation links to the
+        specific data event that triggered it.
       </div>
     </div>
   )
