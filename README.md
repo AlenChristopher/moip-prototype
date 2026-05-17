@@ -11,7 +11,7 @@ MOIP is a **concept prototype** for a manufacturing operational intelligence pla
 
 This prototype demonstrates the product vision, UX, and core intelligence modules with realistic simulated data. It is not connected to a live factory — it is a showcase of the **product concept, data model, and interaction design** behind a serious industrial product idea.
 
-**Live demo →** [Your Vercel URL here]
+**Live demo →** https://moip-prototype.vercel.app/
 
 ---
 
