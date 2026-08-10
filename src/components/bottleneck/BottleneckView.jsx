@@ -1,65 +1,67 @@
 import React from 'react'
 import { SectionTitle } from '../shared/UI'
 
-function heatColor(score) {
-  if (score >= 85) return { bg: 'rgba(255,69,96,0.18)',  border: '#FF4560', text: '#FF4560' }
-  if (score >= 65) return { bg: 'rgba(255,176,32,0.14)', border: '#FFB020', text: '#FFB020' }
-  if (score >= 40) return { bg: 'rgba(0,212,255,0.10)',  border: '#00D4FF', text: '#00D4FF' }
-  return                   { bg: 'rgba(0,229,160,0.08)', border: '#00E5A0', text: '#00E5A0' }
+function cellColors(score) {
+  if (score >= 85) return { bg: 'rgba(239,68,68,0.07)',  border: '#EF4444', text: '#EF4444', bar: '#EF4444' }
+  if (score >= 65) return { bg: 'rgba(245,158,11,0.07)', border: '#F59E0B', text: '#F59E0B', bar: '#F59E0B' }
+  if (score >= 40) return { bg: 'rgba(96,165,250,0.06)', border: '#60A5FA', text: '#60A5FA', bar: '#60A5FA' }
+  return               { bg: 'rgba(34,197,94,0.06)',   border: '#22C55E', text: '#22C55E', bar: '#22C55E' }
 }
 
 function StationCell({ station }) {
-  const c = heatColor(station.score)
+  const c = cellColors(station.score)
   const isHot = station.score >= 85
+
   return (
     <div style={{
       background: c.bg,
-      border: `1px solid ${c.border}${isHot ? '' : '66'}`,
-      borderRadius: 8,
-      padding: '16px 14px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8,
+      border: `1px solid ${isHot ? c.border : c.border + '55'}`,
+      borderRadius: 6,
+      padding: '13px 14px',
       position: 'relative',
-      boxShadow: isHot ? `0 0 20px ${c.border}22` : 'none',
       transition: 'all 0.5s ease',
-      animation: isHot ? 'pulse-glow 2s ease-in-out infinite' : 'none',
     }}>
       {station.bottleneck && (
         <div style={{
-          position: 'absolute', top: -8, right: 10,
-          background: '#FF4560', color: '#fff',
-          fontSize: 9, fontWeight: 700,
-          padding: '2px 8px', borderRadius: 10,
-          letterSpacing: '0.08em',
+          position: 'absolute', top: -9, right: 10,
+          background: '#EF4444', color: '#fff',
+          fontSize: 9, fontWeight: 600,
+          padding: '2px 7px', borderRadius: 10,
+          letterSpacing: '0.07em', fontFamily: 'var(--font-mono)',
         }}>
-          ACTIVE BOTTLENECK
+          BOTTLENECK
         </div>
       )}
-      <div style={{ fontSize: 13, fontWeight: 500, color: '#E6EDF3', fontFamily: 'JetBrains Mono' }}>
+
+      <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>
         {station.name}
       </div>
+
+      {/* Score bar */}
+      <div style={{ height: 2, background: 'var(--overlay)', borderRadius: 1, marginBottom: 8 }}>
+        <div style={{ height: '100%', width: `${station.score}%`, background: c.bar, borderRadius: 1, transition: 'width 0.5s ease' }} />
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <div style={{ fontSize: 28, fontWeight: 500, color: c.text, fontFamily: 'JetBrains Mono', lineHeight: 1 }}>
+          <div style={{ fontSize: 22, fontWeight: 500, color: c.text, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {station.score}
           </div>
-          <div style={{ fontSize: 10, color: '#8B949E', marginTop: 2 }}>bottleneck score</div>
+          <div style={{ fontSize: 10, color: 'var(--dim)', marginTop: 1 }}>score</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 18, fontWeight: 500, color: c.text, fontFamily: 'JetBrains Mono' }}>
+          <div style={{ fontSize: 18, fontWeight: 500, color: c.text, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
             {station.queue}
           </div>
-          <div style={{ fontSize: 10, color: '#8B949E' }}>queue depth</div>
+          <div style={{ fontSize: 10, color: 'var(--dim)', marginTop: 1 }}>queue</div>
         </div>
       </div>
+
       <div style={{
-        padding: '4px 8px',
-        background: 'rgba(0,0,0,0.3)',
-        borderRadius: 4,
-        fontSize: 11,
-        color: station.cycleVsTakt.startsWith('+') ? '#FFB020' : '#00E5A0',
-        fontFamily: 'JetBrains Mono',
+        marginTop: 8, padding: '3px 7px',
+        background: 'var(--raised)', borderRadius: 3,
+        fontSize: 11, fontFamily: 'var(--font-mono)',
+        color: station.cycleVsTakt.startsWith('+') ? '#F59E0B' : '#22C55E',
       }}>
         {station.cycleVsTakt} vs takt
       </div>
@@ -71,70 +73,67 @@ export default function BottleneckView({ stations }) {
   const active = stations.find(s => s.bottleneck)
 
   return (
-    <div style={{ padding: '24px 28px' }}>
-      <div style={{ marginBottom: 20 }}>
-        <SectionTitle accent>Dynamic bottleneck intelligence</SectionTitle>
-        <div style={{ fontSize: 12, color: '#8B949E' }}>
-          Station scores updated every 15 min · weighted composite: queue 40% · cycle time 30% · downtime 20% · variance 10%
+    <div className="fade-up" style={{ padding: '22px 26px' }}>
+      <div style={{ marginBottom: 16 }}>
+        <SectionTitle>Dynamic bottleneck intelligence</SectionTitle>
+        <div style={{ fontSize: 12, color: 'var(--dim)', marginTop: -6 }}>
+          Station scores updated every 15 min · composite: queue 40% · cycle time 30% · downtime 20% · variance 10%
         </div>
       </div>
 
       {/* Active bottleneck callout */}
       {active && (
         <div style={{
-          background: 'rgba(255,69,96,0.08)',
-          border: '1px solid rgba(255,69,96,0.4)',
-          borderRadius: 8,
-          padding: '16px 20px',
-          marginBottom: 20,
-          display: 'flex',
-          gap: 20,
-          alignItems: 'center',
+          background: 'rgba(239,68,68,0.06)',
+          border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: 6, padding: '14px 18px', marginBottom: 16,
+          display: 'flex', gap: 14, alignItems: 'flex-start',
         }}>
           <div style={{
-            width: 48, height: 48, borderRadius: 8,
-            background: 'rgba(255,69,96,0.2)',
+            width: 32, height: 32, borderRadius: 5,
+            background: 'rgba(239,68,68,0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, flexShrink: 0,
+            fontSize: 16, flexShrink: 0, color: '#EF4444',
           }}>
-            ⚠
+            ▲
           </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: '#FF4560', marginBottom: 4 }}>
-              Active bottleneck detected — {active.name}
+            <div style={{ fontSize: 13, fontWeight: 500, color: '#EF4444', marginBottom: 4, fontFamily: 'var(--font-mono)' }}>
+              Active bottleneck — {active.name}
             </div>
-            <div style={{ fontSize: 12, color: '#8B949E', lineHeight: 1.6 }}>
-              Queue depth {active.queue} units and rising · cycle time {active.cycleVsTakt} above takt ·
-              estimated throughput loss: <span style={{ color: '#FFB020' }}>+8 units/hr</span> if resolved.
-              <br />Recommended action: <span style={{ color: '#00D4FF' }}>reallocate one operator from Transfer-5 (61% utilisation)</span>
+            <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
+              Queue {active.queue} units and rising · cycle time {active.cycleVsTakt} above takt ·
+              Estimated gain if resolved:{' '}
+              <span style={{ color: '#F59E0B', fontFamily: 'var(--font-mono)' }}>+8 units/hr</span>
+              <br />
+              Recommended action:{' '}
+              <span style={{ color: 'var(--info)' }}>reallocate one operator from Transfer-5 (61% utilisation)</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Heatmap grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
-        {stations.map(station => (
-          <StationCell key={station.id} station={station} />
-        ))}
+      {/* Station grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
+        {stations.map(s => <StationCell key={s.id} station={s} />)}
       </div>
 
       {/* Legend */}
       <div style={{
-        display: 'flex', gap: 20, padding: '12px 16px',
-        background: '#0D1117', borderRadius: 8, border: '1px solid #21262D',
-        alignItems: 'center',
+        display: 'flex', gap: 18, padding: '10px 14px',
+        background: 'var(--surface)', borderRadius: 5,
+        border: '1px solid var(--border)', alignItems: 'center',
       }}>
-        <span style={{ fontSize: 11, color: '#484F58' }}>SCORE SCALE</span>
+        <span style={{ fontSize: 11, color: 'var(--dim)', fontFamily: 'var(--font-mono)' }}>SCORE</span>
         {[
-          { range: '0–39',   label: 'LOW',      color: '#00E5A0' },
-          { range: '40–64',  label: 'MODERATE', color: '#00D4FF' },
-          { range: '65–84',  label: 'HIGH',     color: '#FFB020' },
-          { range: '85–100', label: 'CRITICAL', color: '#FF4560' },
+          { range: '0–39',   label: 'Low',      color: '#22C55E' },
+          { range: '40–64',  label: 'Moderate', color: '#60A5FA' },
+          { range: '65–84',  label: 'High',     color: '#F59E0B' },
+          { range: '85–100', label: 'Critical', color: '#EF4444' },
         ].map(item => (
-          <div key={item.range} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
-            <span style={{ fontSize: 11, color: '#8B949E' }}>
+          <div key={item.range} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />
+            <span style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>
               {item.range} <span style={{ color: item.color }}>{item.label}</span>
             </span>
           </div>
