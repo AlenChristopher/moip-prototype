@@ -12,7 +12,7 @@ export default function App() {
   const [page, setPage] = useState('overview')
   const { kpi, machines, stations, history } = useLiveData()
 
-  const criticalCount = recommendations.filter(r =>
+  const urgentCount = recommendations.filter(r =>
     r.priority === 'CRITICAL' || r.priority === 'HIGH'
   ).length
 
@@ -25,43 +25,44 @@ export default function App() {
   }
 
   return (
-    <div className="scanline" style={{ display: 'flex', minHeight: '100vh', background: '#080C10' }}>
-      <Sidebar active={page} onNav={setPage} alertCount={criticalCount} />
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      <Sidebar active={page} onNav={setPage} alertCount={urgentCount} />
 
       <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-        {/* Top header bar */}
+
+        {/* Top bar */}
         <div style={{
           position: 'sticky', top: 0, zIndex: 10,
-          background: 'rgba(8,12,16,0.92)',
-          backdropFilter: 'blur(8px)',
-          borderBottom: '1px solid #161B22',
-          padding: '10px 28px',
+          background: 'rgba(11,17,32,0.94)',
+          backdropFilter: 'blur(6px)',
+          borderBottom: '1px solid var(--border)',
+          padding: '9px 26px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 7, height: 7, borderRadius: '50%',
-              background: '#00E5A0',
-              boxShadow: '0 0 6px #00E5A0',
-              animation: 'pulse 2s infinite',
+            <div className="live-dot" style={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: 'var(--green)', flexShrink: 0,
             }} />
-            <span style={{ fontSize: 12, color: '#8B949E' }}>
-              Live data · refreshes every 5s · demo mode
+            <span style={{ fontSize: 12, color: 'var(--dim)' }}>
+              Live · refreshes every 5s · demo mode
             </span>
           </div>
-          <div style={{ display: 'flex', gap: 16 }}>
+
+          {/* Live KPI ticker */}
+          <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             {[
-              { label: 'OEE',       value: `${kpi.oee}%`,       color: kpi.oee >= 75 ? '#00E5A0' : '#FFB020' },
-              { label: 'Units',     value: kpi.throughput,       color: '#00D4FF' },
-              { label: 'Downtime',  value: `${kpi.downtime}%`,   color: kpi.downtime > 5 ? '#FF4560' : '#00E5A0' },
+              { label: 'OEE',      value: `${kpi.oee}%`,     color: kpi.oee >= 75 ? 'var(--green)' : '#F59E0B' },
+              { label: 'Units',    value: kpi.throughput,    color: 'var(--text)' },
+              { label: 'Downtime', value: `${kpi.downtime}%`, color: kpi.downtime > 5 ? '#EF4444' : 'var(--green)' },
             ].map(item => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, color: '#484F58' }}>{item.label}</span>
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 11, color: 'var(--dim)' }}>{item.label}</span>
                 <span style={{
                   fontSize: 12, fontWeight: 500,
                   color: item.color,
-                  fontFamily: 'JetBrains Mono',
-                  transition: 'color 0.3s',
+                  fontFamily: 'var(--font-mono)',
+                  transition: 'color 0.4s',
                 }}>
                   {item.value}
                 </span>
@@ -70,8 +71,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Page content */}
-        <div style={{ animation: 'fadeIn 0.25s ease' }}>
+        {/* Page */}
+        <div key={page}>
           {pages[page]}
         </div>
       </main>
